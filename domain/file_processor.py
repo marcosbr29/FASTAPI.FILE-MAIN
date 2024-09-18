@@ -1,8 +1,6 @@
 import csv
 import os
-
-from fastapi import HTTPException, status, UploadFile # type: ignore
-
+from fastapi import HTTPException, status, UploadFile  # type: ignore
 
 class FileProcessor:
     """ Manager of files and folders processor."""
@@ -17,7 +15,7 @@ class FileProcessor:
             with open(self.file_path, 'w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(['conta', 'agencia', 'texto', 'valor'])
-                return {"mensagem": f"Arquivo {self.file_path} craido com suscesso."}
+                return {"mensagem": f"Arquivo {self.file_path} criado com sucesso."}
         else:
             raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
                                 detail="Arquivo já existe")
@@ -64,7 +62,6 @@ class FileProcessor:
         :param data: account data history
         :return: error or success message
         """
-
         if os.path.exists(self.file_path):
             with open(self.file_path, mode='a', newline='') as file:
                 writer = csv.writer(file)
@@ -73,15 +70,23 @@ class FileProcessor:
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail="Arquivo inexistente, por favor acessar"
-                                       " a rota de criar a arquivo.")
-    def list_data(self):
+                                       " a rota de criar o arquivo.")
 
+    def list_data(self):
+        """
+        List data from the CSV file
+        :return: data read from the file
+        """
         if os.path.exists(self.file_path):
-            with open(self.file_path, mode='r', newline='') as file:
-                csv_reader = csv.DictReader(file)
-                data = [row for row in csv_reader]
-                return {"data": data}
+            try:
+                with open(self.file_path, mode='r', newline='') as file:
+                    csv_reader = csv.DictReader(file)
+                    data = [row for row in csv_reader]
+                    return {"data": data}
+            except Exception as e:
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                    detail=f"Erro ao ler o arquivo: {str(e)}")
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Arquivo inexistente, por favor acessar"
-                                   " a rota de criar a arquivo.")
+                                detail="Arquivo inexistente, por favor acessar"
+                                       " a rota de criar o arquivo.")
